@@ -58,7 +58,7 @@ class VehicleDetectorFactory:
                     "person", "bicycle", "car", "motorcycle", "airplane",
                     "bus", "train", "truck", "boat"
                 ],
-                input_size=(320, 320),
+                input_size=(600, 600),
                 scale=1.0,
                 swap_rb=True,
                 mean=(0.0, 0.0, 0.0),
