@@ -17,16 +17,16 @@
 lab2/
 ├── README.md
 ├── main.py # точка входа
-├── app.py # логика приложения
-├── detector_base.py # базовые структуры и абстрактный детектор
-├── detector_factory.py # фабрика детекторов и конфиги моделей
-├── yolo_detector.py # детектор YOLOv4
-├── ssd_mobilenet_detector.py # детектор SSD MobileNet
-├── faster_rcnn_detector.py # детектор Faster R-CNN
+├── app.py # логика
+├── detector_base.py # абстрактный класс
+├── detector_factory.py # создание детекторов
+├── yolo_detector.py
+├── ssd_mobilenet_detector.py
+├── faster_rcnn_detector.py
 ├── evaluator.py # вычисление TPR и FDR
-├── annotation_loader.py # загрузка аннотаций
+├── annotation_loader.py
 ├── configs/
-│ ├── coco.names # классы COCO
+│ ├── coco.names
 │ ├── ssd_mobilenet_v3_large_coco.pbtxt
 │ ├── faster_rcnn_inception_v2_coco.pbtxt
 │ └── yolov4.cfg
@@ -35,8 +35,8 @@ lab2/
 │ ├── frozen_inference_graph_faster_rcnn.pb
 │ └── yolov4.weights
 └── data/
-├── images/ # кадры
-└── annotations.txt # файл разметки
+├── images/
+└── annotations.txt
 ```
 
 ## Алгоритмы детектирования
@@ -56,13 +56,13 @@ lab2/
 
 - сеть загружается из yolov4.cfg и yolov4.weights;
 - для получения выходов используются имена выходных слоёв;
-- выполняется forward по этим слоям, выходы объединяются в массив детекций N × (4 + 1 + C).
+- выходы объединяются в массив детекций N × (4 + 1 + C).
 
 **Постобработка**
 
 - каждая детекция содержит:
   - нормализованные координаты центра и размеров бокса (x, y, w, h),
-  - оценку objectness,
+  - оценку,
   - вероятности по классам;
 - вычисляется итоговая уверенность:
   $$p_{total} = p_{object} \cdot \max_k p_k$$
@@ -122,7 +122,7 @@ $$IoU(A,B) = \frac{|A \cap B|}{|A \cup B|} = \frac{|A \cap B|}{|A| + |B| - |A \c
 
 **Критерий:**
 
-- **True Positive (TP)** — если IoU ≥ 0.5 и класс совпадает;
+- **True Positive (TP)** — если IoU ≥ некоторого порога (например 0.5) и класс совпадает;
 - **False Positive (FP)** — детекция без подходящего GT;
 - **False Negative (FN)** — GT-бокс, не покрытый ни одной детекцией.
 
