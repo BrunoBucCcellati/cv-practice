@@ -43,12 +43,10 @@ class VehicleDetectionApp:
 
             cv.rectangle(result, (x1, y1), (x2, y2), color, 2)
 
-            label_inside = f"{class_name}: {conf:.3f}"
+            label = f"{class_name}: {conf:.3f}"
             (tw, th), baseline = cv.getTextSize(
-                label_inside, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1
+                label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1
             )
-            text_x_inside = x1 + 2
-            text_y_inside = y1 + th + 2
 
             cv.rectangle(
                 result,
@@ -59,29 +57,11 @@ class VehicleDetectionApp:
             )
             cv.putText(
                 result,
-                label_inside,
-                (text_x_inside, text_y_inside),
+                label,
+                (x1 + 2, y1 + th + 2),
                 cv.FONT_HERSHEY_SIMPLEX,
                 0.5,
                 (0, 0, 0),
-                1
-            )
-
-            # Наблюдаемый класс
-            observed_label = class_name
-            (tw2, th2), base2 = cv.getTextSize(
-                observed_label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1
-            )
-            text_x_above = x1
-            text_y_above = max(0, y1 - 5)
-
-            cv.putText(
-                result,
-                observed_label,
-                (text_x_above, text_y_above),
-                cv.FONT_HERSHEY_SIMPLEX,
-                0.5,
-                color,
                 1
             )
 
@@ -98,20 +78,18 @@ class VehicleDetectionApp:
             (tw, th), baseline = cv.getTextSize(
                 label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1
             )
-            text_x = x1
-            text_y = max(0, y1 - 5)
 
             cv.rectangle(
                 result,
-                (text_x, text_y - th - baseline),
-                (text_x + tw + 4, text_y + baseline),
+                (x1, y1 - 5 - th - baseline),
+                (x1 + tw + 4, y1 - 5 + baseline),
                 self.gt_color,
                 thickness=cv.FILLED
             )
             cv.putText(
                 result,
                 label,
-                (text_x + 2, text_y),
+                (x1 + 2, y1 - 5),
                 cv.FONT_HERSHEY_SIMPLEX,
                 0.5,
                 (0, 0, 0),
@@ -164,24 +142,13 @@ class VehicleDetectionApp:
         - show_ground_truth — рисовать GT-боксы.
         """
 
-        available = VehicleDetectorFactory.get_available_models()
-        if model_key not in available:
-            print("Неизвестная модель.")
-            print("Доступные модели:", ", ".join(available.keys()))
-            return
-
-        model_info = available[model_key]
+        model_info = VehicleDetectorFactory.get_available_models()[model_key]
         print(f"Выбрана модель: {model_info['name']}")
         print(f"Классы транспортных средств: {model_info['vehicle_classes']}")
         print(f"Отображение GT: {'ВКЛ' if show_ground_truth else 'ВЫКЛ'}")
 
         # Создаём детектор
-        try:
-            detector = VehicleDetectorFactory.create_detector(model_key, confidence_threshold)
-        except Exception as e:
-            print(f"Ошибка при создании детектора: {e}")
-            print("Проверьте наличие файлов в папках models/ и configs/")
-            return
+        detector = VehicleDetectorFactory.create_detector(model_key, confidence_threshold)
 
         # Загрузка разметки + инициализация оценщика
         annotation_loader = AnnotationLoader(annotations_path, target_class="car")
@@ -197,9 +164,6 @@ class VehicleDetectionApp:
             image_id = os.path.splitext(os.path.basename(image_path))[0]
 
             image = cv.imread(image_path)
-            if image is None:
-                print(f"Не удалось прочитать изображение: {image_path}")
-                continue
 
             gt_boxes = annotation_loader.get_ground_truth(image_id)
 
@@ -241,7 +205,7 @@ class VehicleDetectionApp:
             )
 
         final_tpr, final_fdr = evaluator.get_metrics()
-        avg_time = total_time / processed_frames if processed_frames > 0 else 0.0
+        avg_time = total_time / processed_frames
 
         print("\n" + "=" * 50)
         print("ИТОГОВЫЕ РЕЗУЛЬТАТЫ:")
