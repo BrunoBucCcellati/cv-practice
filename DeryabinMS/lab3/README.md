@@ -80,11 +80,11 @@ $$W_{\text{conv}} \leftarrow W_{\text{ImageNet}}, \quad \frac{\partial L}{\parti
 Обучение только новых слоев:
 $$W_{\text{fc}} \leftarrow \text{random}, \quad \frac{\partial L}{\partial W_{\text{fc}}} \neq 0$$
 
-#### 3. Функция потерь (cross-entropy):
+#### 2. Функция потерь (cross-entropy):
 $$L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{3} y_{i,c} \log(\hat{y}_{i,c})$$
 где $y$ - кодирование истинных меток, $\hat{y}$ - предсказанные вероятности.
 
-#### 4. Оптимизатор Adam:
+#### 3. Оптимизатор Adam:
 Обновление весов по формуле:
 $$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$$
 где $\hat{m}_t$ и $\hat{v}_t$ - оценки первого и второго моментов градиентов.
