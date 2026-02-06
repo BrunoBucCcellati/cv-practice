@@ -80,29 +80,6 @@ $$W_{\text{conv}} \leftarrow W_{\text{ImageNet}}, \quad \frac{\partial L}{\parti
 Обучение только новых слоев:
 $$W_{\text{fc}} \leftarrow \text{random}, \quad \frac{\partial L}{\partial W_{\text{fc}}} \neq 0$$
 
-#### 2. Архитектура VGG16:
-```text
-Input (224×224×3)
-↓
-Conv3-64 → Conv3-64 → MaxPool
-↓
-Conv3-128 → Conv3-128 → MaxPool
-↓
-Conv3-256 → Conv3-256 → Conv3-256 → MaxPool
-↓
-Conv3-512 → Conv3-512 → Conv3-512 → MaxPool
-↓
-Conv3-512 → Conv3-512 → Conv3-512 → MaxPool
-↓
-GlobalAveragePooling2D()
-↓
-Dense(256, ReLU) → Dropout(0.5) → BatchNorm
-↓
-Dense(128, ReLU) → Dropout(0.25) → BatchNorm
-↓
-Dense(3, softmax)
-```
-
 #### 3. Функция потерь (categorical cross-entropy):
 $$L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{3} y_{i,c} \log(\hat{y}_{i,c})$$
 где $y$ - one-hot кодирование истинных меток, $\hat{y}$ - предсказанные вероятности.
@@ -123,7 +100,7 @@ $$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$$
 ### Параметры CNN:
 - `--epochs`: количество эпох обучения
 - `--batch_size`: размер батча
-- `--lr`: скорость обучения оптимизатора Adam
+- `--lr`: скорость обучения оптимизатора
 
 ## Структура данных
 
@@ -176,7 +153,7 @@ python scripts/main.py --algo bow --mode test
 python scripts/main.py --mode visualize --detector sift --image_path "путь/к/изображению.jpg"
 ```
 
-#### CNN с Transfer Learning:
+#### CNN:
 ```bash
 # Обучение и тестирование CNN 
 python scripts/main.py --algo cnn --epochs 10 --batch_size 8 --mode both
