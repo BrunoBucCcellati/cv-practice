@@ -102,13 +102,10 @@ $$f(h) = \text{sign}(w^T h + b)$$
 
 #### 1. Transfer Learning
 Используем предобученную VGG16 на ImageNet. Замораживаем веса сверточных слоев:
-$$
-W_{\text{conv}} \leftarrow W_{\text{ImageNet}}, \quad \frac{\partial L}{\partial W_{\text{conv}}} = 0
-$$
+$$W_{\text{conv}} \leftarrow W_{\text{ImageNet}}, \quad \frac{\partial L}{\partial W_{\text{conv}}} = 0$$
+
 Обучение только новых полносвязных слоев:
-$$
-W_{\text{fc}} \leftarrow \text{random}, \quad \frac{\partial L}{\partial W_{\text{fc}}} \neq 0
-$$
+$$W_{\text{fc}} \leftarrow \text{random}, \quad \frac{\partial L}{\partial W_{\text{fc}}} \neq 0$$
 
 #### 2. Архитектура VGG16:
 Input (224×224×3)
@@ -132,16 +129,12 @@ Dense(128, ReLU) → Dropout(0.25) → BatchNorm
 Dense(3, softmax)
 
 #### 3. Функция потерь (categorical cross-entropy):
-$$
-L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{3} y_{i,c} \log(\hat{y}_{i,c})
-$$
+$$L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{3} y_{i,c} \log(\hat{y}_{i,c})$$
 где $y$ - one-hot кодирование истинных меток, $\hat{y}$ - предсказанные вероятности.
 
 #### 4. Оптимизатор Adam:
 Обновление весов по формуле:
-$$
-\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t
-$$
+$$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$$
 где $\hat{m}_t$ и $\hat{v}_t$ - оценки первого и второго моментов градиентов.
 
 ### Реализация в коде:
@@ -244,20 +237,25 @@ python scripts/main.py --mode single --algo cnn --image_path "my_images/Kremlin/
 
 ## Результаты
 
-### Метрики оценки:
-- **Accuracy:** доля правильных предсказаний
-  $$
-  \text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
-  $$
-- **Precision:** точность для каждого класса
-  $$
-  \text{Precision} = \frac{TP}{TP + FP}
-  $$
-- **Recall:** полнота для каждого класса
-  $$
-  \text{Recall} = \frac{TP}{TP + FN}
-  $$
-- **F1-score:** гармоническое среднее precision и recall
-  $$
-  F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
-  $$
+### Метрики качества:
+
+#### 1. Accuracy (точность):
+$$\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}$$
+
+#### 2. Precision (точность для класса):
+$$\text{Precision} = \frac{TP}{TP + FP}$$
+
+#### 3. Recall (полнота для класса):
+$$\text{Recall} = \frac{TP}{TP + FN}$$
+
+#### 4. F1-score (F-мера):
+$$F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
+
+#### 5. IoU (Intersection over Union):
+$$\text{IoU}(A,B) = \frac{|A \cap B|}{|A \cup B|} = \frac{|A \cap B|}{|A| + |B| - |A \cap B|}$$
+
+#### 6. TPR (True Positive Rate):
+$$\text{TPR} = \frac{TP}{TP + FN}$$
+
+#### 7. FDR (False Discovery Rate):
+$$\text{FDR} = \frac{FP}{TP + FP}$$
