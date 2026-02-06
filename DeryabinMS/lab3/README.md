@@ -8,34 +8,28 @@
 - Архангельский собор
 
 **Реализованные алгоритмы:**
-1. **Bag of Visual Words (BoW)** - классический подход компьютерного зрения
-2. **Convolutional Neural Network (CNN)** с Transfer Learning - современный подход с нейросетями
+1. **Bag of Visual Words** - мешок слов
+2. **Convolutional Neural Network** - подход с нейросетями
 
 ## Архитектура проекта
 
-### Структура файлов:
+### Структура проекта:
 ```text
-practial_work_3/
+lab3/
 ├── scripts/
-│   ├── main.py                 # Точка входа, парсинг аргументов
-│   ├── data_loader.py          # Загрузка и подготовка данных
-│   ├── base_classifier.py      # Базовый абстрактный класс
-│   ├── bow_classifier.py       # Реализация BoW
-│   └── cnn_classifier.py       # Реализация CNN
-├── models/                     # Сохраненные модели
-├── my_images/                  # Дополнительные изображения
-├── NNClassification/           # Исходный датасет
-├── requirements.txt            # Зависимости Python
-└── README.md                   # Документация
+│   ├── main.py                 # точка входа
+│   ├── data_loader.py          # подготовка данных
+│   ├── base_classifier.py      # абстрактный класс
+│   ├── bow_classifier.py       
+│   └── cnn_classifier.py       
+├── models/                     
+├── my_images/                  
+├── NNClassification/           
+├── requirements.txt          
+└── README.md                   
 ```
 
-### Принцип ООП в проекте:
-1. **Абстракция:** `BaseClassifier` определяет общий интерфейс
-2. **Наследование:** `BOWClassifier` и `CNNClassifier` наследуют общий функционал
-3. **Полиморфизм:** вызов `train_from_items()` работает для обоих классификаторов
-4. **Инкапсуляция:** внутренняя реализация каждого алгоритма скрыта
-
-## Алгоритм "Мешок визуальных слов" (BoW)
+## Алгоритм "Мешок слов"
 
 ### Математическая основа:
 
@@ -49,24 +43,22 @@ $$D = \{d_1, d_2, ..., d_n\}, \quad d_i \in \mathbb{R}^{128} \text{ (для SIFT
 Объединяем все дескрипторы со всех обучающих изображений:
 $$D_{\text{all}} = \bigcup_{j=1}^{N} D^{(j)}$$
 
-Применяем K-Means кластеризацию для нахождения $K$ центроидов (визуальных слов):
+Применяем K-Means кластеризацию для нахождения $K$ визуальных слов:
 $$\min_{C} \sum_{i=1}^{|D_{\text{all}}|} \min_{j=1}^{K} \|d_i - c_j\|^2$$
-где $C = \{c_1, c_2, ..., c_K\}$ - центроиды (словарь).
+где $C = \{c_1, c_2, ..., c_K\}$ - словарь.
 
 #### 3. Преобразование изображения в гистограмму
 Для изображения с дескрипторами $D = \{d_1, ..., d_n\}$ вычисляем гистограмму:
 $$h_j = \frac{1}{n} \sum_{i=1}^{n} \mathbb{I}(\text{argmin}_k \|d_i - c_k\| = j)$$
 где $\mathbb{I}$ - индикаторная функция, $h_j$ - частота $j$-го визуального слова.
 
-#### 4. Классификация (SVM)
+#### 4. Классификация
 Обучаем SVM на гистограммах:
-$$f(h) = \text{sign}(w^T h + b)$$
-Для многоклассовой классификации используем стратегию "one-vs-rest".
+$$f(h) = \text{sign}(w^T h + b)$$.
 
 ### Реализация в коде:
 
 ```python
-# Основные шаги в bow_classifier.py:
 1. extract_descriptors() - SIFT/ORB дескрипторы через cv2.SIFT_create()
 2. build_vocabulary() - K-Means кластеризация через sklearn.cluster.KMeans
 3. image_to_histogram() - преобразование через kmeans.predict() и np.histogram()
@@ -74,12 +66,10 @@ $$f(h) = \text{sign}(w^T h + b)$$
 ```
 
 ### Параметры BoW:
-- `--k`: размер словаря (количество кластеров K-Means)
+- `--k`: размер словаря
 - `--detector`: детектор признаков (sift/orb)
-- **SIFT**: 128-мерные дескрипторы, инвариантен к масштабу и повороту
-- **ORB**: 32-мерные бинарные дескрипторы, быстрее, но менее точный
 
-## Сверточная нейронная сеть (CNN) с Transfer Learning
+## Сверточная нейронная сеть (CNN)
 
 ### Математическая основа:
 
@@ -87,7 +77,7 @@ $$f(h) = \text{sign}(w^T h + b)$$
 Используем предобученную VGG16 на ImageNet. Замораживаем веса сверточных слоев:
 $$W_{\text{conv}} \leftarrow W_{\text{ImageNet}}, \quad \frac{\partial L}{\partial W_{\text{conv}}} = 0$$
 
-Обучение только новых полносвязных слоев:
+Обучение только новых слоев:
 $$W_{\text{fc}} \leftarrow \text{random}, \quad \frac{\partial L}{\partial W_{\text{fc}}} \neq 0$$
 
 #### 2. Архитектура VGG16:
@@ -124,7 +114,6 @@ $$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$$
 
 ### Реализация в коде:
 ```python
-# Основные шаги в cnn_classifier.py:
 1. create_cnn_model() - VGG16(weights='imagenet', include_top=False)
 2. preprocess_image() - resize(224,224), /255.0, BGR→RGB
 3. _train_impl() - model.fit() с EarlyStopping и ReduceLROnPlateau
@@ -141,74 +130,63 @@ $$\theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$$
 ### Исходный датасет:
 ```text
 NNClassification/
-├── NNSUDataset/                    # Фото от студентов
+├── NNSUDataset/                   
 │   ├── 01_NizhnyNovgorodKremlin/
 │   ├── 04_ArkhangelskCathedral/
 │   └── 08_PalaceOfLabor/
-├── ExtDataset/                     # Фото из интернета
+├── ExtDataset/                    
 │   ├── 01_NizhnyNovgorodKremlin/
 │   ├── 04_ArkhangelskCathedral/
 │   ├── 08_PalaceOfLabor/
-│   └── reference                   # Файл с ссылками на источники
+│   └── reference                  
 └── train_test_split/
-    ├── train.txt                  # 131 изображений для обучения
-    └── test.txt                   # Автоматически создается программой
+    ├── train.txt              
+    └── test.txt                  
 ```
 
-### Ваши дополнительные изображения:
+### Дополнительные изображения:
 ```text
 my_images/
-├── NizhnyNovgorodKremlin/         # Ваши фото Кремля (английские названия)
-├── ArkhangelskCathedral/          # Ваши фото Собора
-├── PalaceOfLabor/                 # Ваши фото Дворца
-└── my_sources.txt                 # Файл со ссылками в формате "папка/файл,URL"
-```
-
-### Принцип разделения данных:
-- **Обучающая выборка:** изображения из train.txt + ваши изображения из my_images/
-- **Тестовая выборка:** все остальные изображения из датасета (не входящие в обучающую)
-- **Ваши изображения** добавляются ТОЛЬКО в обучающую выборку для улучшения качества модели
-
-## Установка и запуск
-
-### 1. Установка зависимостей:
-```bash
-pip install -r requirements.txt
+├── NizhnyNovgorodKremlin/         
+├── ArkhangelskCathedral/         
+├── PalaceOfLabor/                
+└── reference                
 ```
 
 ### 2. Основные команды:
 
 #### Bag of Visual Words:
-# Обучение и тестирование BoW с SIFT (200 кластеров)
 ```bash
+# Обучение и тестирование BoW с SIFT 
 python scripts/main.py --algo bow --detector sift --k 200 --mode both
 ```
 
-# Только обучение
 ```bash
+# Только обучение
 python scripts/main.py --algo bow --mode train
 ```
 
-# Только тестирование (загружает сохраненную модель)
 ```bash
+# Только тестирование 
 python scripts/main.py --algo bow --mode test
 ```
 
-# Визуализация ключевых точек SIFT
 ```bash
+# Визуализация ключевых точек SIFT
 python scripts/main.py --mode visualize --detector sift --image_path "путь/к/изображению.jpg"
 ```
 
 #### CNN с Transfer Learning:
-# Обучение и тестирование CNN (10 эпох)
 ```bash
+# Обучение и тестирование CNN 
 python scripts/main.py --algo cnn --epochs 10 --batch_size 8 --mode both
 ```
 
-# Тестирование на одном изображении
 ```bash
+# Тестирование на одном изображении
 python scripts/main.py --mode single --algo cnn --image_path "my_images/Kremlin/photo.jpg"
 ```
+
 ### 3. Параметры командной строки:
 | Параметр | Описание | По умолчанию |
 |----------|----------|--------------|
@@ -228,23 +206,14 @@ python scripts/main.py --mode single --algo cnn --image_path "my_images/Kremlin/
 
 ### Метрики качества:
 
-#### 1. Accuracy (точность):
+#### 1. Accuracy: доля правильных предсказаний
 $$\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}$$
 
-#### 2. Precision (точность для класса):
+#### 2. Precision: точность для каждого класса
 $$\text{Precision} = \frac{TP}{TP + FP}$$
 
-#### 3. Recall (полнота для класса):
+#### 3. Recall: полнота для каждого класса
 $$\text{Recall} = \frac{TP}{TP + FN}$$
 
-#### 4. F1-score (F-мера):
+#### 4. F1-score: гармоническое среднее precision и recall
 $$F1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
-
-#### 5. IoU (Intersection over Union):
-$$\text{IoU}(A,B) = \frac{|A \cap B|}{|A \cup B|} = \frac{|A \cap B|}{|A| + |B| - |A \cap B|}$$
-
-#### 6. TPR (True Positive Rate):
-$$\text{TPR} = \frac{TP}{TP + FN}$$
-
-#### 7. FDR (False Discovery Rate):
-$$\text{FDR} = \frac{FP}{TP + FP}$$
