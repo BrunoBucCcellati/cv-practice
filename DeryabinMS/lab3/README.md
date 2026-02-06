@@ -80,9 +80,9 @@ $$W_{\text{conv}} \leftarrow W_{\text{ImageNet}}, \quad \frac{\partial L}{\parti
 Обучение только новых слоев:
 $$W_{\text{fc}} \leftarrow \text{random}, \quad \frac{\partial L}{\partial W_{\text{fc}}} \neq 0$$
 
-#### 3. Функция потерь (categorical cross-entropy):
+#### 3. Функция потерь (cross-entropy):
 $$L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{3} y_{i,c} \log(\hat{y}_{i,c})$$
-где $y$ - one-hot кодирование истинных меток, $\hat{y}$ - предсказанные вероятности.
+где $y$ - кодирование истинных меток, $\hat{y}$ - предсказанные вероятности.
 
 #### 4. Оптимизатор Adam:
 Обновление весов по формуле:
@@ -125,7 +125,7 @@ NNClassification/
 ```text
 my_images/
 ├── NizhnyNovgorodKremlin/         
-├── ArkhangelskCathedral/         
+├── ArchangelCathedral/         
 ├── PalaceOfLabor/                
 └── reference                
 ```
@@ -134,7 +134,7 @@ my_images/
 
 #### Bag of Visual Words:
 ```bash
-# Обучение и тестирование BoW с SIFT 
+# Обучение и тестирование
 python scripts/main.py --algo bow --detector sift --k 200 --mode both
 ```
 
@@ -149,13 +149,13 @@ python scripts/main.py --algo bow --mode test
 ```
 
 ```bash
-# Визуализация ключевых точек SIFT
+# Визуализация ключевых точек
 python scripts/main.py --mode visualize --detector sift --image_path "путь/к/изображению.jpg"
 ```
 
 #### CNN:
 ```bash
-# Обучение и тестирование CNN 
+# Обучение и тестирование
 python scripts/main.py --algo cnn --epochs 10 --batch_size 8 --mode both
 ```
 
